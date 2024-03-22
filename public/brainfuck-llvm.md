@@ -1,13 +1,13 @@
 ---
 title: Brainfuckコンパイラを作った　LLVMを使って
 tags:
-- Rust
-- LLVM
-- brainfuck
-- inkwell
-- コンパイラ
+  - Rust
+  - LLVM
+  - コンパイラ
+  - brainfuck
+  - Inkwell
 private: false
-updated_at: '2024-03-21T11:47:08+09:00'
+updated_at: '2024-03-22T12:32:21+09:00'
 id: 7855300fe84f2b1b08f7
 organization_url_name: null
 slide: false
