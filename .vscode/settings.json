@@ -1,0 +1,10 @@
+{
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "zeta/.*.md",
+                "cmd": "zeta build ${fileBasenameNoExt}"
+            }
+        ]
+    }
+}
