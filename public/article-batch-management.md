@@ -1,13 +1,13 @@
 ---
 title: ZennとQiitaの2重管理を解消してみた
 tags:
-- Zenn
-- Qiita
-- Rust
-- clap
-- markdown
+  - Qiita
+  - Markdown
+  - Rust
+  - clap
+  - Zenn
 private: false
-updated_at: '2024-03-28T12:13:34+09:00'
+updated_at: '2024-03-28T13:55:23+09:00'
 id: b7aae8fc3ae04248c8ff
 organization_url_name: null
 slide: false
