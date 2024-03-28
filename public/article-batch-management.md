@@ -909,7 +909,7 @@ Zeta形式から変換を行うコマンドです。
 
 早速、Zetaを使って本記事を書いてみました。本記事の（Qiita形式に変換する前の）Zetaファイルは以下に置いてあります。
 
-https://github.com/TyomoGit/zenn-qiita/blob/main/zeta/manage-articles-collectivity.md
+https://github.com/TyomoGit/zenn-qiita/blob/main/zeta/article-batch-management.md
 
 
 ## 参考文献
@@ -958,5 +958,8 @@ https://docs.rs/serde/latest/serde/
 
 https://docs.rs/serde_yaml/latest/serde_yaml/index.html
 
+
+## 変更履歴
+- 2024-03-28: 「完成」にあるGitHubへのリンクを修正
 
 [^zeta.inline.1]: `images/`に写真を置く場合で、リポジトリがprivateになっているとき、Qiitaでは表示できません
