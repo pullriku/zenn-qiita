@@ -1,14 +1,14 @@
 ---
 title: ZennとQiitaの2重管理を解消してみた
 tags:
-- Zenn
-- Qiita
-- Rust
-- clap
-- serde
+  - Qiita
+  - Rust
+  - clap
+  - serde
+  - Zenn
 private: false
-updated_at: ''
-id: null
+updated_at: '2024-03-28T12:04:05+09:00'
+id: b7aae8fc3ae04248c8ff
 organization_url_name: null
 slide: false
 ignorePublish: false
