@@ -1,11 +1,12 @@
 ---
 title: ZennとQiitaの2重管理を解消してみた
 tags:
-  - Qiita
-  - Rust
-  - clap
-  - serde
-  - Zenn
+- Zenn
+- Qiita
+- Rust
+- clap
+- serde
+- markdown
 private: false
 updated_at: '2024-03-28T12:13:34+09:00'
 id: b7aae8fc3ae04248c8ff
@@ -674,7 +675,7 @@ let frontmatter = if let Some(existing_fm) = &self.existing_fm {
 ```
 `title`や`topics`などはZeta形式のフィールドと同様です。`private`や`updated_at`については、Qiita形式のファイルがすでに存在するならその値を、なければデフォルトの値を使います。
 
-### 本文の変換
+#### 本文の変換
 
 本文の変換処理を比べます。
 
@@ -960,6 +961,6 @@ https://docs.rs/serde_yaml/latest/serde_yaml/index.html
 
 
 ## 変更履歴
-- 2024-03-28: 「完成」にあるGitHubへのリンクを修正
+- 2024-03-28: 「完成」にあるGitHubへのリンクを修正、見出しレベルを修正、タグを追加
 
 [^zeta.inline.1]: `images/`に写真を置く場合で、リポジトリがprivateになっているとき、Qiitaでは表示できません

@@ -2,7 +2,7 @@
 title: 'ZennとQiitaの2重管理を解消してみた'
 emoji: ⚔️
 type: tech
-topics: ["Zenn", "Qiita", "Rust", "clap", "serde"]
+topics: ["Zenn", "Qiita", "Rust", "clap", "serde", "markdown"]
 published: true
 ---
 
@@ -659,7 +659,7 @@ let frontmatter = if let Some(existing_fm) = &self.existing_fm {
 ```
 `title`や`topics`などはZeta形式のフィールドと同様です。`private`や`updated_at`については、Qiita形式のファイルがすでに存在するならその値を、なければデフォルトの値を使います。
 
-### 本文の変換
+#### 本文の変換
 
 本文の変換処理を比べます。
 
@@ -927,4 +927,4 @@ https://docs.rs/serde/latest/serde/
 https://docs.rs/serde_yaml/latest/serde_yaml/index.html
 
 ## 変更履歴
-- 2024-03-28: 「完成」にあるGitHubへのリンクを修正
+- 2024-03-28: 「完成」にあるGitHubへのリンクを修正、見出しレベルを修正、タグを追加
