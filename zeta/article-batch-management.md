@@ -3,12 +3,14 @@ title: 'ZennとQiitaの2重管理を解消してみた'
 emoji: ⚔️
 type: tech
 topics: ["Zenn", "Qiita", "Rust", "clap", "serde"]
-published: false
+published: true
 ---
 
-## はじめに
+## 概要
 
-ZennとQiitaに同じ記事を投稿する際には、同じ内容を2つのファイルで管理する必要があります。変更があるたび、忘れずにコピー&ペーストをして、プラットフォーム独自の記法を書き換えなくてはなりません。手間がかかる上に、手作業なのでミスが起こるかもしれません。
+ZennとQiitaに同じ記事を投稿する際には、同じ内容を2つのファイルで管理する必要があります。変更があるたび、忘れずにコピー&ペーストをして、プラットフォーム独自の記法[^abstract.1]を書き換えなくてはなりません。手間がかかる上に、手作業なのでミスが起こるかもしれません。
+
+[^abstract.1]: 例えば、注意書きを挿入する際に、Zennでは、独自の`:::message`記法を使うことができます。Qiitaでは、独自の`:::note`記法を使うことができます。
 
 - 複数の場所で同じ記事を管理するのが面倒
 - プラットフォーム独自の記法を手作業で書き換えるのが面倒
@@ -16,20 +18,117 @@ ZennとQiitaに同じ記事を投稿する際には、同じ内容を2つのフ�
 これらの問題を解決するために、Rust言語で簡単なツールを作ってみたのでご紹介します。「**Zeta**」と呼ぶことにします。
 https://github.com/TyomoGit/zeta
 
+:::details 動作確認環境
+
+- MacBook Pro 14インチ 2021 M1 Pro
+
+```sh
+$ sw_vers
+ProductName:            macOS
+ProductVersion:         14.4.1
+BuildVersion:           23E224
+```
+```sh
+$ node --version
+v21.7.1
+
+$ npm --version
+10.5.0
+
+$ npx zenn --version
+(node:11561) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+0.1.153
+
+$ npx qiita version
+1.4.0
+
+$ rustc --version
+rustc 1.76.0 (07dca489a 2024-02-04) (Homebrew)
+
+$ cargo --version
+cargo 1.76.0
+```
+```sh
+$ git --version
+git version 2.44.0
+```
+
+- Rust 2021 edition
+- `Cargo.lock`はGitHubリポジトリにあります
+```toml:Cargo.toml 依存関係の定義
+[dependencies]
+clap = { version = "4.5.3", features = ["derive"] }
+serde = { version = "1.0.197", features = ["derive"] }
+serde_yaml = "0.9.33"
+toml = "0.8.12"
+```
 
 
-## 方針・仕様
+```sh
+$ code --version
+1.87.2
+863d2581ecda6849923a2118d93a088b0745d9d6
+arm64
+
+$ code --list-extensions --show-versions | grep "runonsave"
+emeraldwalk.runonsave@0.2.0
+
+$ firefox --version
+Mozilla Firefox 124.0.1
+```
+:::
+
+## 方針
+
+このツールを使って以下のことが実現できるようにします。
+- 簡単なコマンドでZennとQiita両方のファイルを管理
+- マークダウンファイルをZenn/Qiita形式に変換(ビルドと呼んでいます)
+- 保存時に自動でビルド（VSCode）
+- ビルド後にmainブランチにプッシュで公開
+
+## 仕様
 
 このツールでは、ひとつのファイルに記事を書き、それを変換してZenn/Qiitaに対応するという方法を採りました。記法はZennライクな独自記法です。
+
+:::details Front Matterとは
+Front MatterはZenn CLIやQiita CLIを使って記事を書く際に、ファイルの一番上の、yaml形式でタイトルなどを定義できる部分のことです。CLIを使って管理をする場合、Zennでは以下のように記述します。
+```yaml
+---
+title: "title"
+emoji: "👍"
+type: "info"
+topics: ["topic1", "topic2"]
+published: false
+---
+```
+:::
+
 :::details Zennのマークダウンと違うところ
-- Frontmatter（記事の最初に書くyaml）に`only`フィールドを指定できる（optional）
+- Front Matter（記事の最初に書くyaml）に`only`フィールドを指定できる（optional）
     - 特定のプラットフォームのみに変換するよう指定できる
     - 「Zennだけ」、「Qiitaだけ」への変換に対応できる
-- `:::message`の種類が3種類ある（`info`、`warn`、`alert`）
-    - Qiita向けの対応
 - `<macro>`記法
     - マクロ機能（後述）
+- `:::message`が3種類ある（`info`、`warn`、`alert`）
+    - Qiita向けの対応
+
 :::
+
+:::details Qiitaのマークダウンと違うところ
+- Front Matterのフィールド
+- Front Matter（記事の最初に書くyaml）に`only`フィールドを指定できる（optional）
+    - 特定のプラットフォームのみに変換するよう指定できる
+    - 「Zennだけ」、「Qiitaだけ」への変換に対応できる
+- `<macro>`記法
+    - マクロ機能（後述）
+- `:::note`ではなく`:::message`を使う
+- `<details>`ではなく`:::details`を使う
+- インライン脚注が使える
+    - `^[内容]`
+- 空行がなくても、改行で囲まれたリンクはカードになる
+:::
+
 
 ディレクトリ構造は次のようになります。
 
@@ -46,7 +145,7 @@ https://github.com/TyomoGit/zeta
 ├── Zeta.toml
 └── qiita.config.json
 ```
-`npx zenn init`と`npx qiita init`を実行してZeta用のディレクトリ・ファイルを追加した状態です。
+`npx zenn init`と`npx qiita init`を実行した後に、Zeta用のディレクトリ・ファイルを追加した状態です。
 `zeta/`内に記事ファイルを作り、そこに書き込んでいきます。`images/`内に画像ファイルを置きます。変換を行うと、Zenn用の記事が`articles/`に、Qiita用の記事が`public/`に生成されます。
 
 
@@ -55,8 +154,8 @@ https://github.com/TyomoGit/zeta
 
 このツールが行うことを確認します。このツールの「変換」では、以下のことをします。
 
-#### URLの上下に改行を入れる
-URLをカード形式で表示するために、Qiitaでは上下に改行が必要なためです。
+#### URLの上下に空行を入れる
+URLをカード形式で表示するため、Qiitaでは上下に空行が必要です。
 
 #### インライン脚注を展開する
 
@@ -70,6 +169,8 @@ Zennのインライン脚注をQiita向けに展開します。
 [^zeta.inline.2]: いいい
 ```
 
+脚注の識別子は重複しないようにします。
+
 #### `:::message`を調整する
 
 以下のように変換します。
@@ -81,13 +182,14 @@ Zennのインライン脚注をQiita向けに展開します。
 | `:::message alert` | `:::message alert` | `:::note alert` |
 
 #### `:::details [title]`を調整する
-Zenn
+Zeta・Zennの形式
 ```
 :::details title
 content
 :::
 ```
-Qiita
+
+Qiitaの形式
 ```
 <details><summary>title</summary>
 
@@ -98,7 +200,7 @@ content
 
 #### マクロを展開する
 
-マクロは、プラットフォームごとに違う記述をしたいときに使います。`macro`タグの中に、yaml形式でZennとQiita用の文字列を指定します。マクロの中にはマクロ以外なら何でも書けます。
+マクロは、プラットフォームごとに違う記述をしたいときに使います。`macro`タグの中に、yaml形式でZenn/Qiita用の文字列を指定します。マクロの中にはマクロ以外なら何でも書けます。
 ```html
 - 以前投稿した記事に<macro>
 zenn: "Like"
@@ -106,13 +208,19 @@ qiita: "いいね"
 </macro>を頂きました。嬉しいです。
 
 - 変更履歴は<macro>
-zenn: "この記事のGitHubリポジトリ"
-qiita: "「編集履歴」"
+zenn: 'この記事のGitHubリポジトリ'
+qiita: '「編集履歴」'
 </macro>から確認できます。
+
+- いつか<macro>
+zenn: 「本」を投稿してみたいなぁ
+qiita: アドベントカレンダーに参加してみたいなぁ
+</macro>💭
 ```
 
 実際に展開するとこんな感じです。
 👇
+
 - 以前投稿した記事に<macro>
 zenn: "Like"
 qiita: "いいね"
@@ -123,9 +231,14 @@ zenn: "この記事のGitHubリポジトリ"
 qiita: "「編集履歴」"
 </macro>から確認できます。
 
+- いつか<macro>
+zenn: 「本」を投稿してみたいなぁ
+qiita: アドベントカレンダーに参加してみたいなぁ
+</macro>💭
+
 ☝️
 
-マクロを使う機会は少ないと思いますが、「一元管理にしたが故に不自由」という状態をなくすために作りました。
+マクロを使う機会は少ないと思いますが、「 **一元管理にしたが故に不自由** 」という状態をなくすために作りました。「Like」と「いいね」のような、細かな違いを表現するのに便利です。
 
 #### 写真のパスを調整する
 
@@ -139,22 +252,8 @@ qiita: "![alt](https://url/to/photo.png)"
 
 ## 実装
 
-解析では、マークダウンファイルのFrontmatterと本文を分けて扱います。
-
-:::details Fromtmatterとは
-Frontmatterというのは、Zenn CLIやQiita CLIを使って記事を書くときに、ファイルの一番上の、yaml形式でタイトルなどを定義できる部分のことです。CLIを使って管理をする場合、Zennでは以下のように記述します。
-```txt
----
-title: "title"
-emoji: "👍"
-type: "info"
-topics: ["topic1", "topic2"]
-published: false
----
-```
-
-Zetaではこれに`only`というフィールドを追加したものをfrontmatterとしています。これは特定のプラットフォームのみに変換するためのオプションです。
-:::
+ソースコードを示しつつ、要点を解説します。
+解析では、マークダウンファイルのFront Matterと本文を分けて扱います。すべての実装はGitHubリポジトリを参照してください。
 
 ```rust
 #[derive(Debug, Clone)]
@@ -208,6 +307,7 @@ pub enum TokenType {
     MessageOrDetailsEnd {
         level: usize,
     },
+    /// macro
     Macro(TokenizedMacro),
 }
 ```
@@ -228,7 +328,10 @@ pub struct Scanner {
 }
 ```
 
-スキャナはバッファを持っています。現在位置を進める（`advance()`）と、バッファに文字が追加されていきます。バッファを消費する（`consume_buffer()`）と、バッファの文字列を得ると同時に、バッファを空にすることができます。バッファと呼んでいますが、実際に文字のコピーを行っているわけではなく、インデックスを動かすだけです。`start..current`の位置にあたる文字がバッファに入っています。
+エラーは`errors`で管理しています。エラーが発生しても、最後まで解析を行うことで、複数のエラーに対応できます。
+
+
+スキャナは **バッファ** を持っています。現在位置を進める（`advance()`）と、バッファに文字が追加されていきます。バッファを消費する（`consume_buffer()`）と、バッファの文字列を得ると同時に、バッファは空になります。バッファと呼んでいますが、実際に文字のコピーを行っているわけではなく、インデックスを動かすだけです。`start..current`の位置にあたる文字がバッファに入っています。`start`と`current`はシャクトリムシ🐛のように動きます。
 
 
 ```rust
@@ -257,7 +360,7 @@ impl Scanner {
 }
 ```
 
-トークンの解析に関係する、`!`（写真）、`^`（インライン脚注）や`<`（マクロ）などの文字を「興味のある文字」と呼ぶことにします。興味のある文字に出会うまで、文字をバッファに溜め込んでいきます。興味のある文字を発見したら、バッファを消費し、`TokenType::Text(String)`としてトークンを作ります。
+トークンの解析に関係する、`!`（写真）、`^`（インライン脚注）や`<`（マクロ）などの文字を「 **興味のある文字** 」と呼ぶことにします。興味のある文字に出会うまで、文字をバッファに溜め込んでいきます。興味のある文字を発見したら、バッファを消費し、`TokenType::Text(String)`としてトークンを作ります。
 
 ```rust
 fn collect_text(&mut self) {
@@ -267,7 +370,7 @@ fn collect_text(&mut self) {
 ```
 
 そして、その興味ある文字に合った処理を実行します。例えば、脚注は次のようにして解析しています。
-ここでは、文章中に表れる脚注`[^脚注の識別子]`から識別子を取り出しています。これは、後にすべての脚注の識別子を参照する場面があるためです。脚注の本文`[^脚注の識別子]: 本文`は無視します。すでに識別子を取り出しているためです。
+ここでは、文章中に現われる脚注`[^脚注の識別子]`から識別子を取り出しています。脚注は特に変換の必要性がありませんが、後にすべての脚注の識別子を参照する場面があるため、解析しています。脚注の本文`[^脚注の識別子]: 本文`は無視します。すでに識別子を取り出しているためです。
 
 ```rust:matchの一部
 '[' => {
@@ -356,7 +459,9 @@ pub enum MessageType {
 }
 ```
 
-`Element`は`TokenType`とほぼ同じです。違うのは、`Message`と`Details`の構造が表わされている点です。この二つの要素はネストする可能性があります。もしネストしていたら、その解析もこのパートで行います。
+`Element`は`TokenType`と似ています。違うのは、`Message`と`Details`の構造が表わされている点です。この二つの要素はネストする可能性があります[^parse.1]。もしネストしていたら、その解析もこのパートで行います。
+
+[^parse.1]: ただし、`:::message`の中に、さらに`:::message`や`:::details`を入れることはできない仕様です。
 
 パーサです。
 
@@ -385,16 +490,15 @@ impl Parser {
 }
 ```
 
-パーサの`nesting_levels`はネストの深さを管理するのに使用しています。
-ZetaやZennでの`:::details`のネストは、外側の要素の`:`の数が一番多くなるように書く必要があります。
+パーサの`nesting_levels`はネストの深さを管理するのに使用しています。`:::details`のネストは、外側の要素の`:`の数が一番多くなるように書く必要があります。
 ```md
-:::::details 1
-::::details 2
-:::details 3
+::::::details 1
+:::::details 2
+::::details 3
 深淵
-:::
 ::::
 :::::
+::::::
 ```
 :::::details 1
 ::::details 2
@@ -408,12 +512,12 @@ ZetaやZennでの`:::details`のネストは、外側の要素の`:`の数が一
 ```
 :::details outer
 ::::::::::details inner
-コンパイル❌
+ビルド❌
 ::::::::::
 :::
 ```
 
-コードを示します。`parse_block`は`end`で指定されたトークンを見つけるまで解析を続けます。`None`が指定されると、ファイルの終わりまで解析を続けます。初めは`None`を渡して解析を始めます。
+パースの処理です。`parse_block`は`end`で指定されたトークンを見つけるまで解析を続けます。`None`が指定されると、ファイルの終わりまで解析を続けます。初めは`None`を渡して解析を始めます。
 
 ```rust
 fn parse_block(&mut self, end: Option<TokenType>) -> Vec<Element> {
@@ -491,7 +595,7 @@ fn unnest(&mut self) {
 ```
 解析するレベルと現在のレベルを比較して、不正な場合はエラーにします。
 
-また、Frontmatterのデジリアライズもパーサで行なっています。
+また、Front Matterのデジリアライズもパーサで行なっています。
 ```rust
 fn parse_frontmatter(&mut self) -> Result<ZetaFrontmatter> {
     let content = &self.frontmatter;
@@ -509,16 +613,11 @@ fn parse_frontmatter(&mut self) -> Result<ZetaFrontmatter> {
 ```
 `serde_yaml`クレートを使って、簡単にデジリアライズすることができます。問題がある場合は`location`を参照して行数と列数を取得することができます。
 
-### コンパイル
+### ビルド
 
-`ParsedMd`を対応するプラットフォームのマークダウンに変換することを **コンパイル** と呼んでいます。^[ここまでの一連の流れがプログラムのコンパイルと似ているためです。] `ZennCompiler`と`QiitaCompiler`によって、プラットフォームごとの記法に変換されます。比較しやすいように、まずはFrontmatterの変換を見てみましょう。
+`ParsedMd`を対応するプラットフォームのマークダウンに変換します。 `ZennCompiler`と`QiitaCompiler`によって、プラットフォームごとの記法に変換されます。まずはFront Matterの変換を示します。
 
-#### Frontmatterの変換
-
-
-`Element`はマークダウンの構造の一部を解析したものです。
-
-プラットフォームごとに変換を行います。このことをソースコード内では「compile」と呼んでいます。まずはFrontmatterの変換を見てみましょう。
+#### Front Matterの変換
 
 Zenn形式への変換は、単に対応するフィールドを取り出すだけです。
 ```rust
@@ -562,7 +661,7 @@ let frontmatter = if let Some(existing_fm) = &self.existing_fm {
 
 ### 本文の変換
 
-本文の変換処理を比べてみます。
+本文の変換処理を比べます。
 
 Zenn形式への変換です。
 
@@ -610,9 +709,11 @@ fn compile_element(&mut self, element: Element) -> String {
         }
     }
 }
+```
 
 Qiita形式への変換です。
 
+```rust
 fn compile_element(&mut self, element: Element) -> String {
     match element {
         Element::Text(text) => text,
@@ -676,6 +777,7 @@ fn compile_element(&mut self, element: Element) -> String {
     }
 }
 ```
+
 `Macro`では、それぞれのプラットフォームに対応するフィールドを参照します。
 `Image`では、Qiitaのみ、写真ファイルへのパスを書き換えます。以下のように、写真のURLをGitHubにリンクするように変更します。
 ```rust
@@ -731,10 +833,9 @@ fn main() {
 }
 ```
 
-サブコマンドや引数に対応する構造を定義するだけで、簡単に解析を行うことができます。
-引数を受け取って、対応する関数を呼び出しています。
+サブコマンドや引数に対応する構造を定義するだけで、簡単に解析を行うことができ、すごく便利です。引数を受け取って、対応する関数を呼び出しています。
 
-`init`コマンドでは以下のことを行います。
+**`init`コマンドでは以下のことを行います。**
 - GitHub Repositoryの指定
 - `Zeta.toml`ファイルの作成
 - `npm init -y`の実行
@@ -748,16 +849,16 @@ fn main() {
 - `.gitignore`ファイルの作成
 両方のCLIを初期化し、諸々のファイルを作成しています。
 
-`new`コマンドでは以下のことを行います。
+**`new`コマンドでは以下のことを行います。**
 - `images/{target}`ディレクトリの作成
 - `zeta/{target}.md`ファイルの作成
-- `zeta/{target}.md`ファイルへのFrontMatterの書き込み
+- `zeta/{target}.md`ファイルへのFront Matterの書き込み
 執筆を始められるよう、必要なディレクトリとファイルを作成しています。
 
-`build`コマンドでは以下のことを行います。
+**`build`コマンドでは以下のことを行います。**
 - `zeta/{target}.md`ファイルの変換
     - Zenn形式の成果物は`articles/{target}.md`に、Qiita形式の成果物は`public/{target}.md`に保存される
-    - Frontmatterの`only`が指定されている場合は、指定されたプラットフォームのみに変換される
+    - Front Matterの`only`が指定されている場合は、指定されたプラットフォームのみに変換される
 Zeta形式から変換を行うコマンドです。
 
 `rename`コマンドは記事の名前（slag）を変更します。`remove`コマンドは記事を削除します。
@@ -775,7 +876,7 @@ Zeta形式から変換を行うコマンドです。
     1. コミットしてリモートリポジトリにpushします。
 
 いちいち`zeta build`を実行するのが面倒なので、VSCodeの拡張機能[Run On Save for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=pucelle.run-on-save)を使って、自動的に`zeta build`を実行すると快適です。
-ワークスペースの`settings.json`に以下の設定を追記します。
+ワークスペースの`.vscode/settings.json`に以下の設定を追記します。
 ```json
 "emeraldwalk.runonsave": {
     "commands": [
@@ -787,10 +888,12 @@ Zeta形式から変換を行うコマンドです。
 }
 ```
 
+## 完成
+
 これで、**ひとつのファイルに書き込み、自動でプラットフォームに合った形式に変換し、pushするだけで記事を公開できる環境**を作ることができました<macro>
 zenn: "⚔️"
 qiita: "✏️"
-</macro>
+</macro>　参考になれば幸いです。
 
 早速、Zetaを使って本記事を書いてみました。本記事の（<macro>
 zenn: "Zenn"
@@ -800,7 +903,7 @@ https://github.com/TyomoGit/zenn-qiita/blob/main/zeta/manage-articles-collectivi
 
 ## 参考文献
 
-主に「Frontmatterの変換」にて参考にさせていただきました。
+主に「Front Matterの変換」にて参考にさせていただきました。大変参考になりました。
 https://zenn.dev/ot07/articles/zenn-qiita-article-centralized
 
 Zennのマークダウン記法とCLIについて参考にさせていただきました。
@@ -822,6 +925,3 @@ https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html
 `serde`関連のドキュメントです。
 https://docs.rs/serde/latest/serde/
 https://docs.rs/serde_yaml/latest/serde_yaml/index.html
-
-`toml`のドキュメントです。
-https://docs.rs/toml/latest/toml/
