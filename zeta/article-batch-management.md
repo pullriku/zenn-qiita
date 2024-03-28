@@ -2,7 +2,7 @@
 title: 'ZennとQiitaの2重管理を解消してみた'
 emoji: ⚔️
 type: tech
-topics: ["Zenn", "Qiita", "Rust", "clap", "serde", "markdown"]
+topics: ["Zenn", "Qiita", "Rust", "clap", "markdown"]
 published: true
 ---
 

@@ -7,7 +7,6 @@ topics:
 - Qiita
 - Rust
 - clap
-- serde
 - markdown
 published: true
 ---

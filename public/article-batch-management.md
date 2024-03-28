@@ -5,7 +5,6 @@ tags:
 - Qiita
 - Rust
 - clap
-- serde
 - markdown
 private: false
 updated_at: '2024-03-28T12:13:34+09:00'
