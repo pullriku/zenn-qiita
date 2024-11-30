@@ -1,17 +1,17 @@
 ---
 title: ZennとQiitaの2重管理を解消してみた
 tags:
-  - Qiita
-  - Markdown
-  - Rust
-  - clap
-  - Zenn
+- Zenn
+- Qiita
+- Rust
+- clap
+- markdown
 private: false
 updated_at: '2024-03-28T13:55:23+09:00'
 id: b7aae8fc3ae04248c8ff
 organization_url_name: null
 slide: false
-ignorePublish: false
+ignorePublish: true
 ---
 
 ## 概要
@@ -25,7 +25,7 @@ ZennとQiitaに同じ記事を投稿する際には、同じ内容を2つのフ�
 
 これらの問題を解決するために、Rust言語で簡単なツールを作ってみたのでご紹介します。「**Zeta**」と呼ぶことにします。
 
-https://github.com/TyomoGit/zeta
+https://github.com/pullriku/zeta
 
 
 <details><summary>動作確認環境</summary>
@@ -909,7 +909,7 @@ Zeta形式から変換を行うコマンドです。
 
 早速、Zetaを使って本記事を書いてみました。本記事の（Qiita形式に変換する前の）Zetaファイルは以下に置いてあります。
 
-https://github.com/TyomoGit/zenn-qiita/blob/main/zeta/article-batch-management.md
+https://github.com/pullriku/zenn-qiita/blob/main/zeta/article-batch-management.md
 
 
 ## 参考文献

@@ -3,7 +3,7 @@
 公開の記事を書いたらここに置く。
 
 自作ツールを使用して、一括管理をしている
-    --> https://github.com/TyomoGit/zeta
+    --> https://github.com/pullriku/zeta
 
 - `zeta init`: Zetaを初期化
 - `zeta new 記事のslag`: 記事を作成

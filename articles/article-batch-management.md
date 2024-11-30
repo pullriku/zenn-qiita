@@ -8,7 +8,7 @@ topics:
 - Rust
 - clap
 - markdown
-published: true
+published: false
 ---
 
 ## 概要
@@ -21,9 +21,7 @@ ZennとQiitaに同じ記事を投稿する際には、同じ内容を2つのフ�
 - プラットフォーム独自の記法を手作業で書き換えるのが面倒
 
 これらの問題を解決するために、Rust言語で簡単なツールを作ってみたのでご紹介します。「**Zeta**」と呼ぶことにします。
-
-https://github.com/TyomoGit/zeta
-
+https://github.com/pullriku/zeta
 
 :::details 動作確認環境
 
@@ -891,56 +889,32 @@ Zeta形式から変換を行うコマンドです。
 これで、**ひとつのファイルに書き込み、自動でプラットフォームに合った形式に変換し、pushするだけで記事を公開できる環境**を作ることができました⚔️　参考になれば幸いです。
 
 早速、Zetaを使って本記事を書いてみました。本記事の（Zenn形式に変換する前の）Zetaファイルは以下に置いてあります。
-
-https://github.com/TyomoGit/zenn-qiita/blob/main/zeta/article-batch-management.md
-
+https://github.com/pullriku/zenn-qiita/blob/main/zeta/article-batch-management.md
 
 ## 参考文献
 
 主に「Front Matterの変換」にて参考にさせていただきました。大変参考になりました。
-
 https://zenn.dev/ot07/articles/zenn-qiita-article-centralized
 
-
 Zennのマークダウン記法とCLIについて参考にさせていただきました。
-
 https://zenn.dev/zenn/articles/markdown-guide
-
-
 https://zenn.dev/zenn/articles/install-zenn-cli
 
-
 Qiitaのマークダウン記法とCLIについて参考にさせていただきました。
-
 https://qiita.com/Qiita/items/c686397e4a0f4f11683d
-
-
 https://qiita.com/Qiita/items/666e190490d0af90a92b
 
-
 自動保存の方法について参考にさせていただきました。
-
 https://qiita.com/taruscript/items/63a829a2f76413db4b2a
-
-
 https://github.com/emeraldwalk/vscode-runonsave
 
-
 `clap`のドキュメントなどです。
-
 https://docs.rs/clap/latest/clap/
-
-
 https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html
 
-
 `serde`関連のドキュメントです。
-
 https://docs.rs/serde/latest/serde/
-
-
 https://docs.rs/serde_yaml/latest/serde_yaml/index.html
-
 
 ## 変更履歴
 - 2024-03-28: 「完成」にあるGitHubへのリンクを修正、見出しレベルを修正、タグを追加

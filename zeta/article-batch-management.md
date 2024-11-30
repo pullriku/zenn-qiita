@@ -3,7 +3,7 @@ title: 'ZennとQiitaの2重管理を解消してみた'
 emoji: ⚔️
 type: tech
 topics: ["Zenn", "Qiita", "Rust", "clap", "markdown"]
-published: true
+published: false
 ---
 
 ## 概要
@@ -16,7 +16,7 @@ ZennとQiitaに同じ記事を投稿する際には、同じ内容を2つのフ�
 - プラットフォーム独自の記法を手作業で書き換えるのが面倒
 
 これらの問題を解決するために、Rust言語で簡単なツールを作ってみたのでご紹介します。「**Zeta**」と呼ぶことにします。
-https://github.com/TyomoGit/zeta
+https://github.com/pullriku/zeta
 
 :::details 動作確認環境
 
@@ -899,7 +899,7 @@ qiita: "✏️"
 zenn: "Zenn"
 qiita: "Qiita"
 </macro>形式に変換する前の）Zetaファイルは以下に置いてあります。
-https://github.com/TyomoGit/zenn-qiita/blob/main/zeta/article-batch-management.md
+https://github.com/pullriku/zenn-qiita/blob/main/zeta/article-batch-management.md
 
 ## 参考文献
 

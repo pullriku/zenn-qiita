@@ -14,7 +14,7 @@ published: true
 ### GitHubリポジトリ
 
 本記事で紹介するプログラムの完成品は以下のリポジトリで公開しています。本記事で解説していない部分（インタプリタなど）も含まれます。
-https://github.com/TyomoGit/brainfuck-rs
+https://github.com/pullriku/brainfuck-rs
 
 ### 環境
 ```sh

@@ -19,9 +19,7 @@ published: true
 ### GitHubリポジトリ
 
 本記事で紹介するプログラムの完成品は以下のリポジトリで公開しています。本記事で解説していない部分（インタプリタなど）も含まれます。
-
-https://github.com/TyomoGit/brainfuck-rs
-
+https://github.com/pullriku/brainfuck-rs
 
 ### 環境
 ```sh
@@ -678,29 +676,19 @@ Hello, Brainfuck Compiler!
 ## 参考文献
 
 Gif画像で動かしているプログラム`mandelbrot.b`です。
-
 http://esoteric.sange.fi/brainfuck/utils/mandelbrot/
 
-
 terminatorについて参考にさせていただきました。
-
 https://www.quora.com/How-do-Terminators-work-in-the-LLVM-IR
 
-
 「ホストマシンの取得」、「リンク」の部分のコードを参考にさせていただきました。私の実装では一部簡略化した部分があります。
-
 https://qiita.com/_53a/items/d7d4e4fc250bfd945d9e
 
-
 `inkwell`のドキュメントです。
-
 https://thedan64.github.io/inkwell/inkwell/index.html
 
-
 LLVM Language Reference Manualです。
-
 https://releases.llvm.org/17.0.1/docs/LangRef.html
-
 
 
 ## 変更履歴
