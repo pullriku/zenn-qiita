@@ -4,6 +4,7 @@ emoji: "🧠"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Rust", "LLVM", "brainfuck", "inkwell", "コンパイラ"]
 published: true
+only: "zenn"
 ---
 
 ## はじめに

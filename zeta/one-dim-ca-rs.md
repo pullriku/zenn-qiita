@@ -1,14 +1,10 @@
 ---
-title: 1次元セルオートマトン、全ルール生成してみた
-tags:
-- セル・オートマトン
-- Rust
-private: false
-updated_at: ''
-id: ''
-organization_url_name: null
-slide: false
-ignorePublish: true
+title: '1次元セルオートマトン、全ルール生成してみた'
+emoji: ⏫️
+type: tech
+topics: ["セル・オートマトン", "Rust"]
+published: false
+only: "zenn"
 ---
 
 
